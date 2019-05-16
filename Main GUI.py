@@ -1,12 +1,12 @@
 from tkinter import Tk, ttk, StringVar, IntVar, messagebox, Scrollbar, Menu, Toplevel, Frame, Label, Entry, Button
-from tkinter.constants import TOP, BOTTOM, LEFT, RIGHT, HORIZONTAL, VERTICAL, SOLID, W, X, Y
+from tkinter.constants import TOP, BOTTOM, LEFT, RIGHT, HORIZONTAL, VERTICAL, SOLID, W, X, Y, CENTER, BOTH, N, S, E
 import sqlite3
 
 root = Tk()
 root.title("Personal Information Management")
 
 width = 1024
-height = 720
+height = 300
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 x = (screen_width/2) - (width/2)
@@ -93,7 +93,7 @@ def displayhome():
     Home = Tk()
     Home.title("Personal Information Management/Home")
     width = 1024
-    height = 720
+    height = 300
     screen_width = Home.winfo_screenwidth()
     screen_height = Home.winfo_screenheight()
     x = (screen_width/2) - (width/2)
@@ -102,7 +102,7 @@ def displayhome():
     Home.resizable(0, 0)
     Home.protocol("WM_DELETE_WINDOW", close)
     Title = Frame(Home, bd=1, relief=SOLID)
-    Title.pack(pady=10)
+    Title.pack(expand=1)
     lbl_display = Label(Title, text="Personal Information Management", font=('arial', 45))
     lbl_display.pack()
     menubar = Menu(Home)
@@ -136,48 +136,44 @@ def showaddnew():
 def addnewform():
     TopAddNew = Frame(addnewformx, width=600, height=100, bd=1, relief=SOLID)
     TopAddNew.pack(side=TOP, pady=20)
-    lbl_text = Label(TopAddNew, text="Add New Product", font=('arial', 18), width=600)
+    lbl_text = Label(TopAddNew, text="Add New Employee", font=('arial', 18), width=600)
     lbl_text.pack(fill=X)
     MidAddNew = Frame(addnewformx, width=600)
     MidAddNew.pack(side=TOP, pady=50)
-    lbl_employeeid = Label(MidAddNew, text="Employee ID:", font=('arial', 25), bd=10)
-    lbl_employeeid.grid(row=0, sticky=W)
     lbl_firstname = Label(MidAddNew, text="First Name:", font=('arial', 25), bd=10)
-    lbl_firstname.grid(row=1, sticky=W)
+    lbl_firstname.grid(row=0, sticky=W)
     lbl_lastname = Label(MidAddNew, text="Last Name:", font=('arial', 25), bd=10)
-    lbl_lastname.grid(row=2, sticky=W)
+    lbl_lastname.grid(row=1, sticky=W)
     lbl_companyname = Label(MidAddNew, text="Company Name:", font=('arial', 25), bd=10)
-    lbl_companyname.grid(row=3, sticky=W)
+    lbl_companyname.grid(row=2, sticky=W)
     lbl_houseno = Label(MidAddNew, text="House No.:", font=('arial', 25), bd=10)
-    lbl_houseno.grid(row=4, sticky=W)
+    lbl_houseno.grid(row=3, sticky=W)
     lbl_city = Label(MidAddNew, text="City:", font=('arial', 25), bd=10)
-    lbl_city.grid(row=5, sticky=W)
+    lbl_city.grid(row=4, sticky=W)
     lbl_county = Label(MidAddNew, text="County:", font=('arial', 25), bd=10)
-    lbl_county.grid(row=6, sticky=W)
+    lbl_county.grid(row=5, sticky=W)
     lbl_zipaddress = Label(MidAddNew, text="ZIP:", font=('arial', 25), bd=10)
-    lbl_zipaddress.grid(row=7, sticky=W)
+    lbl_zipaddress.grid(row=6, sticky=W)
     lbl_email = Label(MidAddNew, text="Email:", font=('arial', 25), bd=10)
-    lbl_email.grid(row=8, sticky=W)
-    employeeid = Entry(MidAddNew, textvariable=EMPLOYEE_ID, font=('arial', 25), width=15)
-    employeeid.grid(row=0, column=1)
+    lbl_email.grid(row=7, sticky=W)
     firstname = Entry(MidAddNew, textvariable=FIRST_NAME, font=('arial', 25), width=15)
-    firstname.grid(row=1, column=1)
+    firstname.grid(row=0, column=1)
     lastname = Entry(MidAddNew, textvariable=LAST_NAME, font=('arial', 25), width=15)
-    lastname.grid(row=2, column=1)
+    lastname.grid(row=1, column=1)
     companyname = Entry(MidAddNew, textvariable=COMPANY_NAME, font=('arial', 25), width=15)
-    companyname.grid(row=3, column=1)
+    companyname.grid(row=2, column=1)
     houseno = Entry(MidAddNew, textvariable=HOUSE_NO, font=('arial', 25), width=15)
-    houseno.grid(row=4, column=1)
+    houseno.grid(row=3, column=1)
     city = Entry(MidAddNew, textvariable=CITY, font=('arial', 25), width=15)
-    city.grid(row=5, column=1)
+    city.grid(row=4, column=1)
     county = Entry(MidAddNew, textvariable=COUNTY, font=('arial', 25), width=15)
-    county.grid(row=6, column=1)
+    county.grid(row=5, column=1)
     zipaddress = Entry(MidAddNew, textvariable=ZIP, font=('arial', 25), width=15)
-    zipaddress.grid(row=7, column=1)
+    zipaddress.grid(row=6, column=1)
     email = Entry(MidAddNew, textvariable=EMAIL, font=('arial', 25), width=15)
-    email.grid(row=8, column=1)
+    email.grid(row=7, column=1)
     btn_add = Button(MidAddNew, text="Save", font=('arial', 18), width=30, bg="#009ACD", command=addnewemployee)
-    btn_add.grid(row=9, columnspan=2, pady=20)
+    btn_add.grid(row=8, columnspan=2, pady=20)
 
 
 def addnewemployee():
@@ -207,10 +203,11 @@ def viewform():
     lbl_text = Label(TopViewForm, text="View Employees", font=('arial', 18), width=600)
     lbl_text.pack(fill=X)
     lbl_txtsearch = Label(LeftViewForm, text="Search", font=('arial', 15))
-    lbl_txtsearch.pack(side=TOP, anchor=W)
+    lbl_txtsearch.pack(side=TOP)
     search = Entry(LeftViewForm, textvariable=SEARCH, font=('arial', 15), width=10)
     search.pack(side=TOP,  padx=10, fill=X)
-    btn_search = Button(LeftViewForm, text="Search", command=search)
+    search.bind("<Return>", searchfunction)
+    btn_search = Button(LeftViewForm, text="Search", command=searchfunction)
     btn_search.pack(side=TOP, padx=10, pady=10, fill=X)
     btn_reset = Button(LeftViewForm, text="Reset", command=reset)
     btn_reset.pack(side=TOP, padx=10, pady=10, fill=X)
@@ -239,7 +236,7 @@ def displaydata():
     conn.close()
 
 
-def search():
+def searchfunction(Event=None):
     if SEARCH.get() != "":
         tree.delete(*tree.get_children())
         database()
@@ -336,7 +333,7 @@ root.config(menu=menubar)
 
 # ========================================FRAME============================================
 Title = Frame(root, bd=1, relief=SOLID)
-Title.pack(pady=10)
+Title.pack(expand=1)  # Make the frame expandable so it can center itself inside of the window
 
 # ========================================LABEL WIDGET=====================================
 lbl_display = Label(Title, text="Personal Information Management", font=('arial', 45))
