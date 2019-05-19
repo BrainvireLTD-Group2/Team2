@@ -8,10 +8,13 @@ import os  # For running Windows open shell command
 root = Tk()
 root.title('Personal Information Management')
 
+global screen_height
+screen_height = root.winfo_screenheight()
+global screen_width
+screen_width = root.winfo_screenwidth()
+
 width = 1024
 height = 300
-screen_width = root.winfo_screenwidth()
-screen_height = root.winfo_screenheight()
 x = (screen_width/2) - (width/2)
 y = (screen_height/2) - (height/2)
 root.geometry('%dx%d+%d+%d' % (width, height, x, y))
@@ -53,21 +56,19 @@ def databaseinitialise():
 
 
 def checkfirstrun():
-    global firstrun
     database()
     cursor.execute("SELECT * FROM temp LIMIT 1")
     temp = cursor.fetchone()
     if temp[0] == 1:
-        firstrun = True
         print('First Run')
-        showdpa()
+        showdpa(firstrun=True)
         cursor.execute("REPLACE INTO temp (ROWID, firstrun) VALUES (1, 0)")
         conn.commit()
 
 
 def close():
-    result = messagebox.askquestion('Personal Information Management', 'Are you sure you want to exit?', icon='warning')
-    if result == 'yes':
+    result = messagebox.askyesno('Personal Information Management', 'Are you sure you want to exit?', icon='warning')
+    if result:
         conn.close()
         root.destroy()
         exit()
@@ -79,51 +80,77 @@ def showloginform():
     loginformx.title('Personal Information Management/Account Login')
     width = 600
     height = 500
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
     x = (screen_width/2) - (width/2)
     y = (screen_height/2) - (height/2)
-    loginformx.resizable(0, 0)
     loginformx.geometry('%dx%d+%d+%d' % (width, height, x, y))
+    loginformx.resizable(0, 0)
     loginform()
 
 
-def checkdpa():
-    exists = os.path.isfile('Data Protection Act.pdf')
-    if exists:
-        # todo check integrity
-        return True
-    else:
-        # file not found
-        return False
-
-
-def showdpa():
+def opendpa():
     loop = True
+    result = 3
     while loop:
-        result = messagebox.askyesno('Personal Information Management', 'Since this is the first time running this program you must agree to the Data Protection Act Document which is about to open, is this okay?')
-        if result:
-            if checkdpa():
-                os.startfile('Data Protection Act.pdf')
-                loop = False
-            else:
-                result = messagebox.askyesno('Personal Information Management', 'Document not found, would you like to download it?')
-                if result:
-                    print('DOWNLOADING')
-                    downloaddpa()
-                    os.startfile('Data Protection Act.pdf')
-                    loop = False
-                else:
-                    close()
+        temp = checkdpa(result)
+        if temp == 1:
+            # FILE FOUND AND HASH MATCH
+            loop = False
+            os.startfile('Data Protection Act.pdf')
         else:
-            close()
+            # FILE FOUND AND HASH MISMATCH
+            # OR FILE NOT FOUND
+            # EITHER WAY SAME OUTCOME, FILE NEEDS TO BE (RE)DOWNLOADED
+            if temp == 2:
+                messagebox.showinfo('Personal Information Management', 'File was found but hash was mismatched therefore the file needs to be redownloaded')
+            downloaddpa()
+
+
+def checkdpa(result):
+    file_name = 'Data Protection Act.pdf'
+    exists = os.path.isfile(file_name)
+    hash = 'bb7d190c44ac183f50bf07ca61ab8bfc'
+    if exists:
+        # FILE FOUND PROCEED TO CHECK HASH
+        hash_md5 = hashlib.md5()
+        with open(file_name, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+
+        if hash_md5.hexdigest() == hash:
+            # HASH MATCH
+            result = 1
+            return result
+        else:
+            #HASH MISMATCH
+            result = 2
+            return result
+    else:
+        # FILE NOT FOUND
+        result = 3
+        return result
+
+
+def showdpa(firstrun = False):
+    if firstrun:
+        # INFORM USER ABOUT FIRST RUN
+        loop = True
+        while loop:
+            result = messagebox.askyesno('Personal Information Management', 'Since this is the first time running this program you must agree to the Data Protection Act Document which is about to open, is this okay?', icon='warning')
+            if result:
+                loop = False
+                opendpa()
+            else:
+                close()
+    else:
+        opendpa()
 
 
 def downloaddpa():
+    print('DOWNLOADING')
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     http = urllib3.PoolManager(cert_reqs='CERT_NONE')
     out_file = open('Data Protection Act.pdf', 'wb')
-    out_file.write(http.request('GET', "https://raw.githubusercontent.com/BrainvireLTD-Group2/PIM-System/master/Data%20Protection%20Act.pdf").data)
+    out_file.write(http.request('GET', "https://github.com/BrainvireLTD-Group2/PIM-System/raw/master/Data%20Protection%20Act.pdf").data)
     out_file.close()
 
 
@@ -157,8 +184,6 @@ def displayhome():
     Home.title('Personal Information Management/Home')
     width = 1024
     height = 300
-    screen_width = Home.winfo_screenwidth()
-    screen_height = Home.winfo_screenheight()
     x = (screen_width/2) - (width/2)
     y = (screen_height/2) - (height/2)
     Home.geometry('%dx%d+%d+%d' % (width, height, x, y))
@@ -188,8 +213,6 @@ def showaddnew():
     addnewformx.title('Personal Information Management/Add new')
     width = 600
     height = 850
-    screen_width = Home.winfo_screenwidth()
-    screen_height = Home.winfo_screenheight()
     x = (screen_width/2) - (width/2)
     y = (screen_height/2) - (height/2)
     addnewformx.geometry('%dx%d+%d+%d' % (width, height, x, y))
@@ -341,8 +364,6 @@ def showview():
     viewformx.title('Personal Information Management/View Employees')
     width = 600
     height = 400
-    screen_width = Home.winfo_screenwidth()
-    screen_height = Home.winfo_screenheight()
     x = (screen_width/2) - (width/2)
     y = (screen_height/2) - (height/2)
     viewformx.geometry('%dx%d+%d+%d' % (width, height, x, y))
